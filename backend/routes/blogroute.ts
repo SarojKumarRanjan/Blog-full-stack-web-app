@@ -10,13 +10,14 @@ import { verify } from 'hono/jwt';
 export const blogroute = new Hono<{
     Bindings: {
         DATABASE_URL: string;
+        JWT_SECRET: string;
         
     }
 }>();
 
 
 
-blogroute.use('/*', async (c, next) => {
+blogroute.use('/blog/*', async (c, next) => {
 	try {
         const jwt = c.req.header('Authorization');
         	if (!jwt) {
@@ -40,7 +41,7 @@ blogroute.use('/*', async (c, next) => {
     }
 })
 
-blogroute.post('/add', async(c) => {
+blogroute.post('/blog/add', async(c) => {
 
 
     const prisma = new PrismaClient({
@@ -108,7 +109,7 @@ blogroute.get('/getone/:id', async (c) => {
 
 
 
-blogroute.put('/update/:id',async (c) => {
+blogroute.put('/blog/update/:id',async (c) => {
 	const id = c.req.param('id')
     const prisma = new PrismaClient({
         datasourceUrl: c.env.DATABASE_URL,
