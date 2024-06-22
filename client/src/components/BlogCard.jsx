@@ -1,20 +1,24 @@
-// eslint-disable-next-line react/prop-types
-function BlogCard({ title,content,id,authorId}) {
+import { Link } from "react-router-dom";
+
+// eslint-disable-next-line react/prop-types, no-unused-vars
+function BlogCard({ title, content, id, authorId ,imageUrl}) {
   return (
-    <div className="card card-compact w-96 bg-base-100 shadow-xl">
+    <div className="card card-side bg-base-100 shadow-xl" style={{ width: "70%" }}>
       <figure>
         <img
-          src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg"
-          alt="Shoes"
+        className="rounded-md"
+          src={imageUrl+"-/scale_crop/300x300/smart/"}
+          alt="post image"
+          
         />
       </figure>
       <div className="card-body">
         <h2 className="card-title">{title}</h2>
         <p>{content}</p>
-        <p>{id}</p>
-        <p>{authorId}</p>
         <div className="card-actions justify-end">
-          <button className="btn btn-primary">Read More..</button>
+          <Link to={`/blog/${id}`} className="btn btn-primary">
+            Read more..
+          </Link>
         </div>
       </div>
     </div>

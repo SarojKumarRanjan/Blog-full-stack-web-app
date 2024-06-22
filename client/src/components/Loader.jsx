@@ -1,12 +1,9 @@
-
-
 function Loader() {
   return (
-    <div><span className="loading loading-ring loading-xs"></span>
-    <span className="loading loading-ring loading-sm"></span>
-    <span className="loading loading-ring loading-md"></span>
-    <span className="loading loading-ring loading-lg"></span></div>
-  )
+    <div className="h-screen flex  items-center">
+      <progress className="progress w-56"></progress>
+    </div>
+  );
 }
 
-export default Loader
+export default Loader;

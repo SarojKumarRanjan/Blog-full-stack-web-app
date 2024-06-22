@@ -6,17 +6,22 @@ import { Outlet } from 'react-router-dom';
 import { useTheme } from './utils/ThemeContext';
 import Container from "./components/Container"
 
+
 function App() {
   const { theme } = useTheme();
 
   return (
+    <div data-theme={theme}>
     <Container>
-       <div data-theme={theme}>
+       
+        
       <Navbar />
+      
       <Outlet />
       <Footer />
-    </div>
+    
     </Container>
+    </div>
    
   )
 }

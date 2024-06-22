@@ -1,8 +1,8 @@
-
+import BlogPage from "../components/BlogPage"
 
 function SingleBlog() {
   return (
-    <div>SingleBlog</div>
+    <div><BlogPage/></div>
   )
 }
 

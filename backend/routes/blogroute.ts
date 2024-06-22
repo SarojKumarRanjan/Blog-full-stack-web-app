@@ -3,6 +3,8 @@ import { PrismaClient } from "@prisma/client/edge";
 import { withAccelerate } from "@prisma/extension-accelerate";
 
 
+
+
 import { verify } from 'hono/jwt';
 
 
@@ -11,6 +13,8 @@ export const blogroute = new Hono<{
     Bindings: {
         DATABASE_URL: string;
         JWT_SECRET: string;
+        UPLOADCARE_PUBLIC_KEY: string;
+        UPLOADCARE_SECRET_KEY: string;
         
     }
 }>();
@@ -27,8 +31,10 @@ blogroute.use('/blog/*', async (c, next) => {
         	const token = jwt.split(' ')[1];
         	const payload = await verify(token, c.env.JWT_SECRET);
         	if (!payload) {
+
+            c.status(401)
         		
-        		return c.status(401).json({ error: "unauthorized" });
+        		return c.json({ error: "unauthorized" });
         	} 
             
             
@@ -44,36 +50,62 @@ blogroute.use('/blog/*', async (c, next) => {
 blogroute.post('/blog/add', async(c) => {
 
 
-    const prisma = new PrismaClient({
-        datasourceUrl: c.env.DATABASE_URL,
-      }).$extends(withAccelerate());
-    
-      const body = await c.req.json();
-      
-      
 
-      if (!body) {
-        c.status(401);
-        return c.json({ error: "Missing the blog details" });
-        
-      }
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate());
+
+
+ 
+  
+  try {
+    const formData = await c.req.formData();
+    const title = formData.get('title');
+    const content = formData.get('content');
+    const image:any = formData.get('postImage');
+
+    if (typeof title !== 'string' || typeof content !== 'string' ) {
+        c.status(400);
+        return c.json({ error: "Missing blog details or image" });
+    }
+
+    // Process the image file (e.g., upload to a storage service)
+    //@ts-ignore
+    const imageUrl = await uploadImageToUploadcare(image, c.env.UPLOADCARE_PUBLIC_KEY, c.env.UPLOADCARE_SECRET_KEY); 
+
+   
     
-      const blog = await prisma.post.create({
+  
+   
+    
+    
+
+    const blog = await prisma.post.create({
         data: {
-          title: body.title,
-          content: body.content,
+            title: title,
+            content: content,
+            imageUrl: imageUrl,
+            
+             
             //@ts-ignore
-          authorId:c.get("userId")
+            authorId: c.get("userId")
         }
-      })
+    });
 
-      return c.json({
-          //@ts-ignore
-        id: blog.id
-      })
-
-	
+    return c.json({
+        //@ts-ignore
+        blog:blog
+    });
+} catch (error) {
+    console.error('Error adding blog:', error);
+    c.status(500);
+    return c.json({ error: "Internal Server Error" });
+}
+    
 })
+
+
+
 
 blogroute.get('/getone/:id', async (c) => {
 
@@ -109,35 +141,63 @@ blogroute.get('/getone/:id', async (c) => {
 
 
 
-blogroute.put('/blog/update/:id',async (c) => {
-	const id = c.req.param('id')
-    const prisma = new PrismaClient({
-        datasourceUrl: c.env.DATABASE_URL,
-      }).$extends(withAccelerate());
-    
-      const body = await c.req.json();
+blogroute.put('/blog/update/:id', async (c) => {
+  const id = c.req.param('id');
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate());
 
-      if (!body) {
-        c.status(401);
-        return c.json({ error: "Missing the blog details for updating" });
-        
+  try {
+    const formData = await c.req.formData();
+    const title = formData.get('title');
+    const content = formData.get('content');
+    const image = formData.get('postImage');
+
+    if (typeof title !== 'string' || typeof content !== 'string') {
+      c.status(400);
+      return c.json({ error: 'Missing blog details for updating' });
+    }
+
+    // Fetch the current blog post to get the current image URL
+    const currentBlog = await prisma.post.findFirst({
+      where: { id },
+    });
+
+    if (!currentBlog) {
+      c.status(404);
+      return c.json({ error: 'Blog post not found' });
+    }
+
+    let updateData: any = {
+      title,
+      content,
+    };
+
+    if (image) {
+      const imageUrl = await uploadImageToUploadcare(image, c.env.UPLOADCARE_PUBLIC_KEY,c.env.UPLOADCARE_SECRET_KEY);
+      updateData.imageUrl = imageUrl;
+
+      // Extract the UUID from the current image URL
+      if (currentBlog.imageUrl) {
+        const uuid = currentBlog.imageUrl.split('/').slice(-2, -1)[0];
+        await deleteImageFromUploadcare(uuid, c.env.UPLOADCARE_PUBLIC_KEY, c.env.UPLOADCARE_SECRET_KEY);
       }
-    
-      const blog = await prisma.post.update({
-        where:{
-            id:id
-        },
-        data: {
-          title: body.title,
-          content: body.content,
-           
-        }
-      })
+    }
 
-      return c.json({
-         blog
-      })
-})
+    const blog = await prisma.post.update({
+      where: {
+        id,
+      },
+      data: updateData,
+    });
+
+    return c.json({ blog });
+  } catch (error) {
+    console.error('Error updating blog:', error);
+    c.status(500);
+    return c.json({ error: 'Internal Server Error' });
+  }
+});
 
 blogroute.get('/getall', async (c) => {
 
@@ -151,7 +211,8 @@ blogroute.get('/getall', async (c) => {
     const limit = parseInt(c.req.query('limit') || '10', 10);
 
     if (isNaN(page) || isNaN(limit)) {
-        return c.status(400).json({ error: "Invalid page or limit" });
+      c.status(400)
+        return c.json({ error: "Invalid page or limit" });
     }
 
     try {
@@ -174,8 +235,52 @@ blogroute.get('/getall', async (c) => {
             totalPages,
             totalCount
         });
-    } catch (err) {
-        return c.status(500).json({ error: "Error in finding all posts", details: err.message });
+    } catch (err:any) {
+      c.status(500)
+        return c.json({ error: "Error in finding all posts", details: err.message });
     }
 });
 
+
+
+
+async function uploadImageToUploadcare(image:any, publicKey: string, secretKey: string): Promise<string> {
+  const formData = new FormData();
+  formData.append('UPLOADCARE_PUB_KEY', publicKey);
+  formData.append('UPLOADCARE_STORE', '1');
+  formData.append('file', image);
+
+  const response = await fetch('https://upload.uploadcare.com/base/', {
+      method: 'POST',
+      body: formData
+  });
+
+  
+  
+
+  if (!response.ok) {
+      throw new Error('Failed to upload image to Uploadcare');
+  }
+
+  const data:any = await response.json();
+  return `https://ucarecdn.com/${data.file}/`;
+}
+
+
+async function deleteImageFromUploadcare(uuid: string, publicKey: string, secretKey: string): Promise<void> {
+  const response = await fetch(`https://api.uploadcare.com/files/${uuid}/`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Uploadcare.Simple ${publicKey}:${secretKey}`,
+    },
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Uploadcare delete response error:', errorText);
+    throw new Error(`Failed to delete image from Uploadcare: ${errorText}`);
+  }
+
+  console.log(`Deleted image ${uuid} from Uploadcare.`);
+}

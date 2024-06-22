@@ -1,8 +1,9 @@
 
+import Login from '../components/Login';
 
 function Loginpage() {
   return (
-    <div>Loginpage</div>
+    <Login/>
   )
 }
 
