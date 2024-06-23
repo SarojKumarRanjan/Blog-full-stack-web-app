@@ -241,6 +241,73 @@ blogroute.get('/getall', async (c) => {
     }
 });
 
+blogroute.post('/blog/delete/:id',async(c) => {
+
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate());
+
+  const id = c.req.param("id");
+
+  if (!id) {
+    c.status(400);
+    return c.json({ error: "Missing post id" });
+    
+  }
+
+  const post = await prisma.post.findFirst({
+    where: {
+      id: id,
+    },
+  })
+
+  if(!post){
+    c.status(404);
+    return c.json({ error: "Post not found" });
+
+
+  }
+
+  if (post.imageUrl != "") {
+
+
+    const uuid = post.imageUrl.split('/').slice(-2, -1)[0];
+    
+    if (!uuid) {
+    
+      c.status(400);
+      return c.json({ error: "Missing image URL" });
+    }
+  
+  
+      await deleteImageFromUploadcare(uuid,c.env.UPLOADCARE_PUBLIC_KEY,c.env.UPLOADCARE_SECRET_KEY)
+  
+    
+  }
+
+  
+
+
+ 
+  
+
+ const deletePost = await prisma.post.delete({
+    where:{
+      id:id
+    }
+  })
+
+  if(!deletePost){
+    c.status(500);
+    return c.json({ error: "Couldn't delete post" });
+  }
+
+  c.status(200);
+  return c.json({ message: "Post deleted successfully" });
+
+}
+)
+
 
 
 

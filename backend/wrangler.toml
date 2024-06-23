@@ -2,6 +2,10 @@ name = "backend"
 compatibility_date = "2023-12-01"
 compatibility_flags = [ "nodejs_compat" ]
 
+kv_namespaces = [
+  { binding = "RATE_LIMITER", id = "0cbc0bb07e6049cea50aa0f610ccfe7e" }
+]
+
  [vars]
 
  DATABASE_URL="prisma://accelerate.prisma-data.net/?api_key=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcGlfa2V5IjoiMjMwMTJiMmEtYjc5MS00MjBjLWI2NmQtMjRmNzIzMWI4NTdkIiwidGVuYW50X2lkIjoiOGFhM2U1YzBhZjNlMzkxZGZlMDYyOTIyOTdlNjA0NDRhYjU3OWIxYmYwYmExNjk3OWFlYmUwNDU3NGQyNDA5MSIsImludGVybmFsX3NlY3JldCI6ImM2YjI5OGQwLTU5ZTEtNDFjMC04MzZhLTU4M2ZjZmMxNjY0YSJ9.LXtBpx4WEkARZMV5lN3-RyULkwzRMd-_PrQqR133FSo"
