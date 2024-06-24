@@ -2,8 +2,11 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-hot-toast";
+import { useContext } from "react";
+import { UserContext } from "../Context/UserContext"
 
 function Login() {
+  const{setUser} = useContext(UserContext)
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
@@ -23,6 +26,7 @@ function Login() {
           setLoading(false);
           if (res.data) {
             localStorage.setItem("token", res.data.jwt);
+            setUser(res.data.user);
             navigate("/");
             toast.success("Logged in successfully");
           }

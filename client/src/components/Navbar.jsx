@@ -1,7 +1,24 @@
 import Theme from "../utils/Theme";
-import {Link} from "react-router-dom"
+import {Link,useNavigate} from "react-router-dom"
+
+import { toast } from 'react-hot-toast';
+
+
 
 function Navbar() {
+
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    console.log("logout called");
+   const deleteToken =  localStorage.setItem("token",null);
+   if (!deleteToken) {
+    navigate("/")
+    toast.success("Logged out successfully");
+    
+   }
+
+  }
   return (
     <div className="navbar bg-base-100">
       <div className="flex-1">
@@ -43,7 +60,7 @@ function Navbar() {
               <a>Settings</a>
             </li>
             <li>
-              <a>Logout</a>
+              <Link onClick={handleLogout}>Logout</Link>
             </li>
           </ul>
         </div>

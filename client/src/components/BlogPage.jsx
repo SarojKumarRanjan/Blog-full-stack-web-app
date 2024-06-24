@@ -36,7 +36,7 @@ function BlogPage() {
       
   return (
 
-    <div className="prose prose-sm md:prose-base mx-auto">
+    <div className="prose prose-sm md:prose-base mx-auto mt-8 mb-8">
         {
             loading? (
                <Loader/>
@@ -53,11 +53,11 @@ function BlogPage() {
         </figure>
         <div>
           <div className="text-base-content/60 mb-2 text-xs">
-            <span title="6 Oct 2023" className="italic">
+           {/*  <span title="6 Oct 2023" className="italic">
               Published 8 months ago
             </span>{" "}
             by
-            <span>Pouya Saadeghi</span>
+            <span>Pouya Saadeghi</span> */}
           </div>
           <h1>{blog?.blog.title}</h1>
           <p>

@@ -16,8 +16,9 @@ function BlogCard({ title, content, id, authorId ,imageUrl}) {
         <h2 className="card-title">{title}</h2>
         <p>{content}</p>
         <div className="card-actions justify-end">
-          <Link to={`/blog/${id}`} className="btn btn-primary">
-            Read more..
+          <Link to={`/blog/${id}`} >
+          <button className="btn btn-primary">Read more...</button>
+            
           </Link>
         </div>
       </div>
