@@ -1,38 +1,44 @@
 import Theme from "../utils/Theme";
-import {Link,useNavigate} from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom";
 
-import { toast } from 'react-hot-toast';
-
-
+import { toast } from "react-hot-toast";
+import { useContext } from "react";
+import UserContext from "../Context/UserContext";
 
 function Navbar() {
+  const { setUser, user } = useContext(UserContext);
 
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-    console.log("logout called");
-   const deleteToken =  localStorage.setItem("token",null);
-   if (!deleteToken) {
-    navigate("/")
-    toast.success("Logged out successfully");
-    
-   }
-
-  }
+    const deleteToken = localStorage.setItem("token", null);
+    if (!deleteToken) {
+      setUser(null);
+      navigate("/");
+      toast.success("Logged out successfully");
+    }
+  };
   return (
     <div className="navbar bg-base-100">
       <div className="flex-1">
-        <Link to="/" className="btn btn-ghost text-xl">Blog App</Link>
+        <Link to="/" className="btn btn-ghost text-xl">
+          Blog App
+        </Link>
       </div>
       <div className="flex-none gap-2">
-        <div className="form-control">
+        {/* <div className="form-control">
           <input
             type="text"
             placeholder="Search"
             className="input input-bordered w-24 md:w-auto"
           />
-        </div>
-         <Theme/>
+        </div> */}
+       { !user? (<Link to="login">
+          <button className="btn btn-primary p-[-8px]">login / signup</button>
+        </Link>): (<Link >
+          <button onClick={handleLogout} className="btn btn-primary p-[-8px]">logout</button>
+        </Link>)}
+        <Theme />
         <div className="dropdown dropdown-end">
           <div
             tabIndex={0}
@@ -42,7 +48,7 @@ function Navbar() {
             <div className="w-10 rounded-full">
               <img
                 alt="Tailwind CSS Navbar component"
-                src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg"
+                src="https://emojiisland.com/cdn/shop/products/Emoji_Icon_-_Sunglasses_cool_emoji_large.png?v=1571606093"
               />
             </div>
           </div>
@@ -56,8 +62,12 @@ function Navbar() {
                 <span className="badge">New</span>
               </a>
             </li>
+
             <li>
-              <a>Settings</a>
+              <Link to="blogs">Blogs</Link>
+            </li>
+            <li>
+              <Link>About</Link>
             </li>
             <li>
               <Link onClick={handleLogout}>Logout</Link>
