@@ -8,12 +8,14 @@
     "@prisma/extension-accelerate": "^1.1.0",
     "@uploadcare/rest-client": "^6.14.1",
     "@uploadcare/upload-client": "^6.14.1",
+    "bcryptjs": "^2.4.3",
     "hono": "^4.4.4",
     "node-fetch": "^3.3.2",
     "prisma": "^5.15.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240529.0",
+    "@types/bcryptjs": "^2.4.6",
     "wrangler": "^3.57.2"
   }
 }
