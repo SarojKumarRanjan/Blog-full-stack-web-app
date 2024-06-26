@@ -4,6 +4,7 @@ import axios from "axios";
 import { toast } from "react-hot-toast";
 import { useContext } from "react";
 import  UserContext  from "../Context/UserContext"
+import { Link } from "react-router-dom";
 
 function Login() {
   const{setUser} = useContext(UserContext)
@@ -74,9 +75,9 @@ function Login() {
                   required
                 />
                 <label className="label">
-                  <a href="#" className="label-text-alt link link-hover">
-                    Forgot password?
-                  </a>
+                <Link to="/signup" className="label-text-alt link link-hover">
+                  Don&apos;t have an account?  Sign Up
+                  </Link>
                 </label>
               </div>
               <div className="form-control mt-6">

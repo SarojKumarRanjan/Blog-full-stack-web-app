@@ -19,6 +19,7 @@ import {
   SingleBlog,
   About,
   Blogs,
+  AddPost
 } from "./pages/index.js";
 
 const router = createBrowserRouter(
@@ -31,6 +32,7 @@ const router = createBrowserRouter(
       <Route path="/blog/:id" element={<SingleBlog />} />
       <Route path="/about" element={<About />} />
       <Route path="/blogs" element={<Blogs />} />
+      <Route path="/blog/add" element={<AddPost />} />
     </Route>
   )
 );

@@ -8,8 +8,8 @@ function Home() {
   
   return (
     <>
-    <Heropage/>
-    <Blogs/>
+    <Heropage />
+    <Blogs disable={"home"}/>
     </>
    
   );

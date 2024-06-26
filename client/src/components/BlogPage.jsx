@@ -5,8 +5,11 @@ import { toast } from "react-hot-toast";
 import Loader from "./Loader";
 import { useContext } from "react";
 import UserContext from "../Context/UserContext";
+import { useNavigate } from "react-router-dom";
 
 function BlogPage() {
+
+  const navigate = useNavigate();
   const {user} = useContext(UserContext);
 
   const { id } = useParams();
@@ -35,16 +38,44 @@ function BlogPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+
+  const handleDelete = async () => {
+    const token = localStorage.getItem("token");
+  
+    try {
+      const res = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/blog/delete/${id}`,
+        {}, 
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+  
+      if (res.status === 200) {
+        toast.success("Blog deleted successfully");
+        navigate("/blogs");
+      } else {
+        toast.error("Failed to delete blog: " + res.data.error);
+      }
+    } catch (error) {
+      toast.error("Failed to delete blog: " + (error.response?.data?.error || error.message));
+    }
+  };
+  //console.log(blog?.blog?.authorId);
+ // console.log(id);
+  
   return (
     <div className="prose prose-sm md:prose-base mx-auto mt-8 mb-8  ">
       {loading ? (
         <Loader />
       ) : (
         <>
-          { user && <div className="flex gap-2 mb-4 justify-end">
-            <button className="btn btn-primary"> Delete</button>
+         { user && ( user.id ==blog?.blog?.authorId && <div className="flex gap-2 mb-4 justify-end">
+            <button onClick={handleDelete} className="btn btn-primary"> Delete</button>
             <button className="btn btn-primary"> Update</button>
-          </div>}
+          </div>)}
 
           <div className="prose prose-sm md:prose-base mx-auto">
             <figure className="w-full">
@@ -61,7 +92,7 @@ function BlogPage() {
               Published 8 months ago
             </span>{" "}
             by */}
-                <span>{user?.id || " "}</span>
+                <span>{user?.name || " "}</span>
               </div>
               <h1>{blog?.blog.title}</h1>
               <p>{blog?.blog?.content}</p>
