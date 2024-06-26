@@ -21,6 +21,7 @@ import {
   Blogs,
   AddPost
 } from "./pages/index.js";
+import { Analytics } from '@vercel/analytics/react';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -43,6 +44,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <ThemeProvider>
         <Toaster />
         <RouterProvider router={router} />
+        <Analytics />
       </ThemeProvider>
     </UserContextProvider>
   </React.StrictMode>
